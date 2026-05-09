@@ -1,7 +1,6 @@
-```markdown
 # Portal-Router: Automated Triage Classification for Patient Inquiries
 
-Live Interactive Deployment: [INSERT_YOUR_STREAMLIT_APP_URL_HERE]
+Live Interactive Deployment: https://hospital-router-app.streamlit.app/
 
 ## Personal Motivation
 
@@ -36,11 +35,12 @@ The evaluation methodology followed the course framework for testing LLM traject
 * **Findings**:
     * **What Worked**: The LLM successfully caught semantic nuances. For instance, the baseline failed to classify "payment plan" because it only looked for the exact word "pay," whereas the LLM correctly routed it to Billing.
     * **Where it Broke Down**: The legacy system completely failed on overlapping substrings. It misrouted scheduling requests to IT Support simply because the word "appointment" contains the letters "app".
-* **Human-in-the-Loop (HITL)**: This system acts as an initial router, not a clinical professional. A strict safety fail-safe is implemented: any message mentioning severe pain, bleeding, or shortness of breath is automatically forced into the Clinical category for immediate human triage review.
+* **Human-in-the-Loop (HITL)**: This system acts as an initial router, not a clinical professional. A strict safety fail-safe is implemented: any message mentioning severe pain, bleeding, or shortness of breath is automatically forced into the Clinical category for immediate human triage review. For non-clinical ties—like someone asking an IT question and a Scheduling question in the same breath—the LLM picks the dominant intent. But because I designed a 'Human-in-the-Loop' system, the human triage agent reading the ticket can quickly handle the IT issue and then manually forward the remaining scheduling question. The AI does the heavy lifting, but the human can catch the issues.
+
 
 ## 4. Artifact Snapshot
 
-Project Walkthrough Video: [INSERT_YOUTUBE_UNLISTED_LINK_HERE]
+Project Walkthrough Video: https://youtu.be/izek4Y9ahcI
 
 
 
@@ -89,4 +89,3 @@ If you prefer to run the system locally on your own machine rather than using th
    ```bash
    streamlit run app.py
    ```
-```
