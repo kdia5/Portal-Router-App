@@ -1,15 +1,21 @@
 # Portal-Router: Automated Triage Classification for Patient Inquiries
 
+Presentation Slides: https://canva.link/my43x7a1slxsfkf 
 Live Interactive Deployment: https://hospital-router-app.streamlit.app/
 
-## Personal Motivation
-
-As a Graduate Research Assistant at the Johns Hopkins University Center for Digital Health and AI, my work is centered on developing technical solutions for healthcare challenges. This project is deeply personal because I have experienced firsthand the frustration of using patient portals where messages seem to disappear into the system. Often, patients wait days for a response simply because their inquiry was routed to the wrong department, such as a billing question being sent to a clinical nurse. This application was built to eliminate that bottleneck by using semantic intelligence to ensure every patient message reaches the correct care team member immediately.
 
 ---
 
-## 1. Context, User, and Problem
+## 1. Context (and Personal Motivation), User, and Problem
+As a Graduate Research Assistant at the Johns Hopkins University Center for Digital Health and AI, my work focuses on developing technical solutions to real-world healthcare challenges. The inspiration for this project comes from a deeply personal frustration with the current state of digital healthcare. I have experienced firsthand the frustration of using patient portals where messages seem to disappear into the system. Often, patients wait days for a response simply because their inquiry was routed to the wrong department, such as a billing question being sent to a clinical nurse. This application was built to eliminate that bottleneck by using semantic intelligence to ensure every patient message reaches the correct care team member immediately. We are told that patient portals are supposed to act as direct bridges to our care teams. Still, in reality, they often function like administrative bottlenecks where urgent messages just get completely lost in the sauce. 
 
+To understand the problem, imagine a patient who has just undergone surgery and is experiencing unexpected side effects. They log into their MyChart portal and type a panicked, conversational message: "I've been feeling incredibly dizzy since I started taking the new medication, and I need to know if my Blue Cross insurance covers an emergency checkup." In a traditional hospital workflow, this unstructured text hits a bottleneck where a legacy keyword filter might spot the word "insurance" and automatically route this urgent clinical symptom straight to the billing department's queue. That ticket might sit in the wrong inbox for days, entirely unseen by a doctor.
+
+This brings us to the target users for this project: Hospital Patient Experience Coordinators and Helpdesk Agents. These staff members are currently drowning in inbox clutter, forced to spend hours every day manually reading and rerouting unstructured patient inquiries. When they have to play middleman, specialized nurses waste their own time fixing administrative errors, and patients are left waiting in the dark for answers.
+
+By using high-speed semantic intelligence, the system evaluates the true intent behind a patient's free-text message and automatically classifies it into one of four specific departments: Billing, Scheduling, Clinical, or IT Support. It then generates the precise Oracle SQL statement needed to route the ticket, allowing the human triage agent to review the AI's recommendation and securely commit it to the hospital's database with a single click. Automating this triage workflow reduces response latency, saves significant administrative overhead, and most importantly, ensures that a patient's medical concern reaches a clinical professional immediately—not an IT tech or a billing coordinator.
+
+Overview Summary:
 * **Target User**: Hospital Patient Experience Coordinators and Helpdesk Agents.
 * **The Workflow**: The process begins when a patient submits an unstructured, free-text message through a health portal like MyChart. The system evaluates the text, classifies it into one of four specific departments (Billing, Scheduling, Clinical, or IT_Support), and automatically logs the ticket into the hospital's helpdesk database using an Oracle SQL INSERT statement.
 * **The Problem**: Patients frequently send messages to the incorrect department, such as asking a clinician about a billing charge or asking an IT desk about laboratory results.
@@ -26,7 +32,7 @@ As a Graduate Research Assistant at the Johns Hopkins University Center for Digi
 
 ## 3. Evaluation and Results
 
-The evaluation methodology followed the course framework for testing LLM trajectories and output accuracy using automated metrics.
+The evaluation methodology utilized an automated metrics framework to rigorously test LLM classification accuracy.
 
 * **Testing Method**: I utilized a "Golden Set" consisting of 50 synthetic, non-PHI patient portal messages. This set was evenly distributed across categories and included over 10 complex edge cases with mixed intents to thoroughly test process evaluation and trajectory handling.
 * **The Baseline**: I compared the GenAI system against a "Status Quo" baseline—a Python script using simple keyword matching for strings like "pay," "appointment," and "password".
@@ -35,7 +41,8 @@ The evaluation methodology followed the course framework for testing LLM traject
 * **Findings**:
     * **What Worked**: The LLM successfully caught semantic nuances. For instance, the baseline failed to classify "payment plan" because it only looked for the exact word "pay," whereas the LLM correctly routed it to Billing.
     * **Where it Broke Down**: The legacy system completely failed on overlapping substrings. It misrouted scheduling requests to IT Support simply because the word "appointment" contains the letters "app".
-* **Human-in-the-Loop (HITL)**: This system acts as an initial router, not a clinical professional. A strict safety fail-safe is implemented: any message mentioning severe pain, bleeding, or shortness of breath is automatically forced into the Clinical category for immediate human triage review. For non-clinical ties—like someone asking an IT question and a Scheduling question in the same breath—the LLM picks the dominant intent. But because I designed a 'Human-in-the-Loop' system, the human triage agent reading the ticket can quickly handle the IT issue and then manually forward the remaining scheduling question. The AI does the heavy lifting, but the human can catch the issues.
+   * **Where the GenAI Struggled (The 4% Error Rate)**: While highly accurate, the Llama-3 model occasionally struggled with perfectly balanced multi-intent messages. When a patient presented two equally weighted administrative requests without a clear primary focus, the model had to "guess" the dominant intent, accounting for the 4% gap in total accuracy.
+* **Human-in-the-Loop (HITL) and Edge Cases**: This system is designed as an AI co-pilot, where human staff retains ultimate control over the enterprise database. Every single ticket, regardless of category, is staged in a 'Pending' queue, and a human agent must actively click "Commit" to execute the SQL command. Within this universal workflow, there are two specific edge-case handlers. First, a strict clinical fail-safe is hardcoded into the pipeline: any message mentioning keywords like "pain" or "bleeding" bypasses the LLM's logic and is automatically categorized as 'Clinical' to ensure medical emergencies are never misrouted by the AI. Second, for complex multi-intent messages—such as a patient asking an IT login question and a Scheduling question in the same sentence—the LLM is constrained to route based on the primary dominant intent. Because the human agent reviews every ticket before it is committed, they can process the AI's primary routing and then manually handle the secondary request. The AI handles the bulk semantic sorting, but the human acts as the final clinical and administrative validator.
 
 
 ## 4. Artifact Snapshot
